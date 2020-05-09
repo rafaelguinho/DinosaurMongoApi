@@ -4,30 +4,35 @@ using System.Collections.Generic;
 using DinosaurApi.Models.Filters;
 using DinosaurApi.Settings;
 using System.Threading.Tasks;
+using System.Collections;
+using Repository.BuscaStrategies;
 
 namespace DinosaurApi.Services
 {
     public class DinosaursService
     {
         private readonly IMongoCollection<Dinossaur> _dinos;
+        private readonly IEnumerable<IDinosaurFilterStrategy> _filters;
 
-        public DinosaursService(IDinosDatabaseSettings settings)
+        public DinosaursService(IDinosDatabaseSettings settings, 
+            IEnumerable<IDinosaurFilterStrategy> filters)
         {
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
 
             _dinos = database.GetCollection<Dinossaur>(settings.DinosCollectionName);
+            _filters = filters;
         }
 
         public async Task<List<Dinossaur>> Get(DinossaurFilter filter)
         {
             var constructor = Builders<Dinossaur>.Filter;
 
-            FilterDefinition<Dinossaur> condition = constructor.Eq(d => d.Name, filter.Name);
+            FilterDefinition<Dinossaur> condition = constructor.Empty;
 
-            foreach (var found in filter.FoundIn)
+            foreach(var f in _filters)
             {
-                condition = condition & constructor.AnyEq(d => d.FoundIn, found);
+                condition = condition & f.Apply(constructor, condition, filter);
             }
 
             return await _dinos.Find(condition).ToListAsync();

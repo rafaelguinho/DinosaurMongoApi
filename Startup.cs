@@ -1,6 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+
+using Repository.BuscaStrategies;
+using Repository.BuscaStrategies.Filters;
 using DinosaurApi.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -31,7 +31,10 @@ namespace DinosaurApi
             services.AddSingleton<IDinosDatabaseSettings>(sp =>
                 sp.GetRequiredService<IOptions<DinosDatabaseSettings>>().Value);
 
-                services.AddSingleton<DinosaursService>();
+                services.AddTransient<DinosaursService>();
+
+                services.AddTransient<IDinosaurFilterStrategy, NameFilter>();
+                services.AddTransient<IDinosaurFilterStrategy, FoundInFilter>();
 
             services.AddControllers();
         }
