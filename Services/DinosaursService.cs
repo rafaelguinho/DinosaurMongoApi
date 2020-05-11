@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using DinosaurApi.Models.Filters;
 using DinosaurApi.Settings;
 using System.Threading.Tasks;
-using System.Collections;
 using Repository.BuscaStrategies;
 
 namespace DinosaurApi.Services
@@ -14,7 +13,7 @@ namespace DinosaurApi.Services
         private readonly IMongoCollection<Dinossaur> _dinos;
         private readonly IEnumerable<IDinosaurFilterStrategy> _filters;
 
-        public DinosaursService(IDinosDatabaseSettings settings, 
+        public DinosaursService(IDinosDatabaseSettings settings,
             IEnumerable<IDinosaurFilterStrategy> filters)
         {
             var client = new MongoClient(settings.ConnectionString);
@@ -24,15 +23,26 @@ namespace DinosaurApi.Services
             _filters = filters;
         }
 
-        public async Task<List<Dinossaur>> Get(DinossaurFilter filter)
+        public async Task<List<Dinossaur>> Get(DinossaurFilter filter, DinosaurSortOrder order,
+            DinossaurTake take)
         {
             var constructor = Builders<Dinossaur>.Filter;
 
             FilterDefinition<Dinossaur> condition = constructor.Empty;
 
-            foreach(var f in _filters)
+            foreach (var f in _filters)
             {
                 condition = condition & f.Apply(constructor, condition, filter);
+            }
+            
+            switch (order?.SortOrder)
+            {
+                case "name_desc":
+                    return await _dinos.Find(condition).SortByDescending(d => d.Name).Limit(take.Take).ToListAsync();
+
+                case "name":
+                    return await _dinos.Find(condition).SortBy(d => d.Name).Limit(take.Take).ToListAsync();
+
             }
 
             return await _dinos.Find(condition).ToListAsync();

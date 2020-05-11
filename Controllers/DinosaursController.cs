@@ -23,8 +23,9 @@ namespace dinosApi.Controllers
             await _dinoService.Get();
 
         [HttpGet("filter", Name = "filter")]
-        public async Task<List<Dinossaur>> Filter([FromQuery] DinossaurFilter filter) =>
-            await _dinoService.Get(filter);
+        public async Task<List<Dinossaur>> Filter([FromQuery] DinossaurFilter filter, 
+        [FromQuery] DinosaurSortOrder order, [FromQuery] DinossaurTake limit) =>
+            await _dinoService.Get(filter, order, limit);
 
         [HttpGet("{id:length(24)}", Name = "Getdino")]
         public async Task<ActionResult<Dinossaur>> Get(string id)
