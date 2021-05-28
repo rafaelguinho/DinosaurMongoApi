@@ -1,16 +1,20 @@
 namespace DinosaurApi.Settings
 {
-    public class DinosDatabaseSettings : IDinosDatabaseSettings
+    public class DinosDatabaseSettings
     {
-        public string DinosCollectionName { get; set; }
-        public string ConnectionString { get; set; }
-        public string DatabaseName { get; set; }
-    }
-
-    public interface IDinosDatabaseSettings
-    {
-        string DinosCollectionName { get; set; }
-        string ConnectionString { get; set; }
-        string DatabaseName { get; set; }
+        public string Database { get; set; }
+        public string Host { get; set; }
+        public int Port { get; set; }
+        public string User { get; set; }
+        public string Password { get; set; }
+        public string ConnectionString 
+        {
+            get 
+            {
+                if (string.IsNullOrEmpty(User) || string.IsNullOrEmpty(Password))
+                    return $@"mongodb://{Host}:{Port}";
+                return $@"mongodb://{User}:{Password}@{Host}:{Port}";
+            }
+        }
     }
 }

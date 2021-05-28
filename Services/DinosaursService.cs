@@ -13,13 +13,13 @@ namespace DinosaurApi.Services
         private readonly IMongoCollection<Dinossaur> _dinos;
         private readonly IEnumerable<IDinosaurFilterStrategy> _filters;
 
-        public DinosaursService(IDinosDatabaseSettings settings,
+        public DinosaursService(DinosDatabaseSettings settings,
             IEnumerable<IDinosaurFilterStrategy> filters)
         {
             var client = new MongoClient(settings.ConnectionString);
-            var database = client.GetDatabase(settings.DatabaseName);
+            var database = client.GetDatabase(settings.Database);
 
-            _dinos = database.GetCollection<Dinossaur>(settings.DinosCollectionName);
+            _dinos = database.GetCollection<Dinossaur>("Dinos");
             _filters = filters;
         }
 

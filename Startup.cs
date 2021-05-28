@@ -4,7 +4,6 @@ using Repository.BuscaStrategies.Filters;
 using DinosaurApi.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,7 +27,7 @@ namespace DinosaurApi
             services.Configure<DinosDatabaseSettings>(
                 Configuration.GetSection(nameof(DinosDatabaseSettings)));
 
-            services.AddSingleton<IDinosDatabaseSettings>(sp =>
+            services.AddSingleton<DinosDatabaseSettings>(sp =>
                 sp.GetRequiredService<IOptions<DinosDatabaseSettings>>().Value);
 
                 services.AddTransient<DinosaursService>();
